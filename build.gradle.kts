@@ -2,6 +2,7 @@ plugins {
     id("net.fabricmc.fabric-loom")
     id("org.jetbrains.kotlin.jvm")
     id("dev.kikugie.stonecutter")
+    id("me.modmuss50.mod-publish-plugin")
     `maven-publish`
 }
 
@@ -78,5 +79,24 @@ kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25)
         freeCompilerArgs.add("-Xjspecify-annotations=strict")
+    }
+}
+
+publishMods {
+    file = tasks.jar.flatMap { it.archiveFile }
+    version = project.version.toString()
+    displayName = "Asset Browser ${property("mod_version")} for ${sc.current.version}"
+    // CHANGELOG from release.yml
+    changelog = providers.environmentVariable("CHANGELOG").orElse("")
+    type = STABLE
+    modLoaders.add("fabric")
+    dryRun = providers.environmentVariable("MODRINTH_TOKEN").getOrNull() == null
+
+    modrinth {
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        projectId = property("modrinth_project_id").toString()
+        minecraftVersions.addAll(property("modrinth_game_versions").toString().split(" "))
+        requires("fabric-language-kotlin")
+        environment = CLIENT_ONLY
     }
 }

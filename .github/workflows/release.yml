@@ -1,0 +1,93 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - gradle.properties
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Read mod version
+        id: version
+        run: |
+          version=$(grep '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --tags origin "refs/tags/v$version" > /dev/null; then
+            echo "v$version is already released, nothing to do."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Extract changelog from the version bump commit
+        if: steps.version.outputs.skip != 'true'
+        run: |
+          git log -1 -G '^mod_version=' --format=%b -- gradle.properties > "$RUNNER_TEMP/changelog.md"
+          echo "Changelog:"
+          cat "$RUNNER_TEMP/changelog.md"
+
+      - name: Check Modrinth settings
+        if: steps.version.outputs.skip != 'true'
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          if [ -z "$MODRINTH_TOKEN" ]; then
+            echo "::error::The MODRINTH_TOKEN repository secret is not set."
+            exit 1
+          fi
+          if [ -z "$(grep '^modrinth_project_id=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')" ]; then
+            echo "::error::modrinth_project_id is empty in gradle.properties."
+            exit 1
+          fi
+
+      - uses: gradle/actions/wrapper-validation@v6
+        if: steps.version.outputs.skip != 'true'
+      - uses: actions/setup-java@v6
+        if: steps.version.outputs.skip != 'true'
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: gradle
+      - name: Make Gradle wrapper executable
+        if: steps.version.outputs.skip != 'true'
+        run: chmod +x ./gradlew
+      - name: Setup Gradle
+        if: steps.version.outputs.skip != 'true'
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build and publish to Modrinth
+        if: steps.version.outputs.skip != 'true'
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          export CHANGELOG="$(cat "$RUNNER_TEMP/changelog.md")"
+          ./gradlew build publishMods
+
+      - name: Create GitHub release
+        if: steps.version.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mapfile -t jars < <(find versions/*/build/libs -name "assetbrowser-$VERSION+*.jar" ! -name '*-sources.jar' | sort)
+          printf '%s\n' "${jars[@]}"
+          gh release create "v$VERSION" "${jars[@]}" \
+            --target "$GITHUB_SHA" \
+            --title "Asset Browser $VERSION" \
+            --notes-file "$RUNNER_TEMP/changelog.md"
