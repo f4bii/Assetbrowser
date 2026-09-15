@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "de.fabihbbbt.assetbrowser.mixin.client",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "ChannelAccessor",
+    "PauseScreenMixin",
+    "SoundEngineAccessor",
+    "SoundManagerAccessor",
+    "TitleScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

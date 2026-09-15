@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "assetbrowser",
+  "version": "${version}",
+  "name": "Asset Browser",
+  "description": "Adds a \"Loaded Assets\" browser (from the pause and title screens) for inspecting, previewing, and cross-referencing every resource currently loaded from active resource packs.",
+  "authors": [
+    "FabiHBBBT"
+  ],
+  "license": "MIT",
+  "environment": "client",
+  "mixins": [
+    {
+      "config": "assetbrowser.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-language-kotlin": ">=1.13.13"
+  }
+}
