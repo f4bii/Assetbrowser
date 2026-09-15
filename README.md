@@ -1,21 +1,22 @@
 # Asset Browser
 
-A client-side Fabric mod for Minecraft Java Edition 26.1.x and 26.2. It adds a
-"Loaded Assets" debug screen for browsing every resource the client has loaded.
+A client-side Fabric mod for Minecraft Java Edition 26.1.x, 26.2, and 26.3. It
+adds a "Loaded Assets" debug screen for browsing every resource the client has
+loaded.
 
 ## Install
 
 1. Install Fabric Loader 0.19.3 or newer for your Minecraft version.
 2. Put the matching JAR in the client's `mods` folder:
-   `assetbrowser-1.0.0+26.2.jar` for 26.2, or `assetbrowser-1.0.0+26.1.2.jar`
-   for any 26.1.x release.
+   `assetbrowser-1.0.0+26.3.jar` for 26.3, `assetbrowser-1.0.0+26.2.jar` for
+   26.2, or `assetbrowser-1.0.0+26.1.2.jar` for any 26.1.x release.
 
 Fabric API is not required. The server does not need the mod.
 
 ## Development login
 
 The development client includes DevAuth Neo and enables it automatically. Run
-`./gradlew :26.2:runClient` (or `:26.1.2:runClient`); the first launch prompts
+`./gradlew :26.2:runClient` (or `:26.3:runClient` / `:26.1.2:runClient`); the first launch prompts
 you to sign in, and later launches reuse the stored token from the
 project-local `.devauth` directory.
 That directory is ignored by Git because it contains sensitive account tokens.

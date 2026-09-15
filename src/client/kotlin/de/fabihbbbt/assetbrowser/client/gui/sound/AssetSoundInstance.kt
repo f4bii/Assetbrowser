@@ -19,9 +19,17 @@ class AssetSoundInstance(
         pitch = 1.0F
     }
 
+    //? if >=26.3 {
+    /*override fun getOrResolve(soundManager: SoundManager): WeighedSoundEvents {
+        val fileLocation = Sound.SOUND_LISTER.fileToId(identifier)
+        sound = Sound(fileLocation, { 1.0F }, { 1.0F }, 1, Sound.Type.FILE, false, false, 16)
+        return WeighedSoundEvents(identifier, null).also { soundEvent = it }
+    }
+    *///?} else {
     override fun resolve(soundManager: SoundManager): WeighedSoundEvents {
         val fileLocation = Sound.SOUND_LISTER.fileToId(identifier)
         sound = Sound(fileLocation, { 1.0F }, { 1.0F }, 1, Sound.Type.FILE, false, false, 16)
         return WeighedSoundEvents(identifier, null)
     }
+    //?}
 }
