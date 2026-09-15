@@ -1,0 +1,5 @@
+["26.1.2"]
+minecraft_dependency = ">=26.1 <26.2"
+
+["26.2"]
+minecraft_dependency = "~26.2"

@@ -1,10 +1,11 @@
 plugins {
-    id("net.fabricmc.fabric-loom") version "1.17-SNAPSHOT"
-    id("org.jetbrains.kotlin.jvm") version "2.4.10"
+    id("net.fabricmc.fabric-loom")
+    id("org.jetbrains.kotlin.jvm")
+    id("dev.kikugie.stonecutter")
     `maven-publish`
 }
 
-version = property("mod_version")!!
+version = "${property("mod_version")}+${sc.current.version}"
 group = property("maven_group")!!
 
 base {
@@ -18,8 +19,13 @@ repositories {
 
 loom {
     splitEnvironmentSourceSets()
+    fabricModJsonPath = rootProject.file("src/main/resources/fabric.mod.json")
 
     runs.named("client") {
+        generateRunConfig = sc.current.isActive
+        if (sc.current.version == sc.tree.vcs.version) {
+            runDirectory = rootProject.layout.projectDirectory.dir("run")
+        }
         vmArg("-Ddevauth.enabled=1")
         property("devauth.state-dir", rootProject.file(".devauth").absolutePath)
     }
@@ -33,7 +39,7 @@ loom {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:${property("minecraft_version")}")
+    minecraft("com.mojang:minecraft:${sc.current.version}")
     implementation("net.fabricmc:fabric-loader:${property("loader_version")}")
     add("localRuntime", "net.litetex.mcm:dev-auth-neo:${property("dev_auth_version")}")
     add("clientImplementation", "net.fabricmc:fabric-language-kotlin:1.13.13+kotlin.2.4.10")
@@ -48,9 +54,13 @@ tasks.test {
 }
 
 tasks.processResources {
-    inputs.property("version", project.version)
+    val properties = mapOf(
+        "version" to project.version,
+        "minecraft_dependency" to project.property("minecraft_dependency"),
+    )
+    inputs.properties(properties)
     filesMatching("fabric.mod.json") {
-        expand("version" to project.version)
+        expand(properties)
     }
 }
 

@@ -180,7 +180,11 @@ class LoadedAssetsScreen(
         )
 
     override fun onClose() {
+        //? if >=26.2 {
         minecraft.gui.setScreen(parent)
+        //?} else {
+        /*minecraft.setScreen(parent)
+        *///?}
     }
 
     override fun removed() {
@@ -442,7 +446,11 @@ class LoadedAssetsScreen(
             val button =
                 Button
                     .builder(Component.literal("Loaded Assets")) {
+                        //? if >=26.2 {
                         Minecraft.getInstance().gui.setScreen(LoadedAssetsScreen(parent))
+                        //?} else {
+                        /*Minecraft.getInstance().setScreen(LoadedAssetsScreen(parent))
+                        *///?}
                     }.size(100, 20)
                     .build()
             button.x = parent.width - button.getWidth() - 5
